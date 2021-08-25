@@ -8,7 +8,7 @@
 :set splitbelow
 
 :tnoremap <Esc> <C-\><C-n>:q!<CR>
-
+:vnoremap <C-c> "+y
 :noremap <silent> <C-Left> :vertical resize +3 <CR>
 :noremap <silent> <C-Right> :vertical resize -3 <CR>
 :noremap <silent> <C-Up> :resize -3 <CR>

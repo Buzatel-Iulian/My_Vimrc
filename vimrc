@@ -7,7 +7,7 @@
 :set scrolloff=5
 :set splitbelow
 :let g:netrw_liststyle = 4
-
+:set cursorline
 :tnoremap <Esc> <C-\><C-n>:q!<CR>
 :vnoremap <C-c> "+y
 

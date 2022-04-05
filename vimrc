@@ -1,5 +1,6 @@
 " Comment
 
+:syntax on
 :set number relativenumber
 :set smartindent
 :set incsearch
@@ -8,6 +9,7 @@
 :set splitbelow
 :let g:netrw_liststyle = 4
 :set cursorline
+:set foldenable
 :tnoremap <Esc> <C-\><C-n>:q!<CR>
 :vnoremap <C-c> "+y
 
@@ -107,8 +109,9 @@ au InsertEnter * call InsertStatuslineColor(v:insertmode)
 """"""""""""Specific File settings"""""""""""""""""""""""""""""""
 augroup remember_folds
   autocmd!
-  autocmd BufWinLeave * mkview
-  autocmd BufWinEnter * silent! loadview
+  autocmd BufWinLeave *.* mkview
+  autocmd BufLeave *.* mkview
+  autocmd BufWinEnter *.* silent! loadview
 augroup END
 
 if has("autocmd")

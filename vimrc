@@ -1,17 +1,24 @@
 " Comment
 
-:syntax on
 :set number relativenumber
 :set smartindent
 :set incsearch
 :set hlsearch
 :set scrolloff=5
+:set splitright
 :set splitbelow
 :let g:netrw_liststyle = 4
 :set cursorline
 :set foldenable
+":set clipboard="*
+:set mouse=a
 :tnoremap <Esc> <C-\><C-n>:q!<CR>
-:vnoremap <C-c> "+y
+":vnoremap <C-c> "*yy
+vmap <C-c> :<Esc>`>a<CR><Esc>mx`<i<CR><Esc>my'xk$v'y!xclip -selection c<CR>u
+" copies filepath to clipboard by pressing yf
+":nnoremap <silent> yf :let @+=expand('%:p')<CR>
+" copies pwd to clipboard: command yd
+":nnoremap <silent> yd :let @+=expand('%:p:h')<CR>
 
 :se fdc=1
 
@@ -128,3 +135,37 @@ set wildmode=list:longest
 " There are certain files that we would never want to edit with Vim.
 " Wildmenu will ignore files with these extensions.
 set wildignore=*.docx,*.jpg,*.png,*.gif,*.pdf,*.pyc,*.exe,*.flv,*.img,*.xlsx
+
+" Vim jump to the last position when reopening a file
+if has("autocmd")
+  au BufReadPost * if line("'\"") > 0 && line("'\"") <= line("$")
+    \| exe "normal! g'\"" | endif
+endif
+
+function! Create()
+  let l:filename = input("please enter filename: ")
+  execute 'silent !touch ' . b:netrw_curdir.'/'.l:filename 
+  Explore
+  redraw!
+endf
+
+function! Open()
+  on
+  normal v
+endf
+
+autocmd filetype netrw call Netrw_mappings()
+function! Netrw_mappings()
+  noremap <buffer>% :call Create()<cr>
+  noremap <buffer><space> :call Open()<cr>
+endfunction
+
+let g:netrw_winsize = 85
+autocmd! BufEnter * if &ft ==# 'help' | wincmd L | endif
+
+augroup DimInactiveWindows
+  au!
+  "au WinEnter * call s:DimInactiveWindows()   "Irrelevant now but a reminder for something you can do
+  au WinEnter * set cursorline
+  au WinLeave * set nocursorline
+augroup END

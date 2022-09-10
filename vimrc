@@ -1,5 +1,12 @@
-" Comment
+" Commands:
+" gn - use this directoy as main directory              - - to go up one directory
+" d - make a directory                                  D/r_click - delete with confirmation 
+" zf#j - creates a fold from the cursor down # lines    za - to toggle the fold
+" #gt - to jump to the #th tab
+" Ctrl-x - to close terminal 
+"
 
+:set autoread
 :set number relativenumber
 :set smartindent
 :set incsearch
@@ -7,18 +14,13 @@
 :set scrolloff=5
 :set splitright
 :set splitbelow
-:let g:netrw_liststyle = 4
+:let g:netrw_liststyle = 3
+:let g:netrw_keepdir=0
 :set cursorline
 :set foldenable
-":set clipboard="*
 :set mouse=a
-:tnoremap <Esc> <C-\><C-n>:q!<CR>
-":vnoremap <C-c> "*yy
+:tnoremap <C-x> <C-\><C-n>:q!<CR>
 vmap <C-c> :<Esc>`>a<CR><Esc>mx`<i<CR><Esc>my'xk$v'y!xclip -selection c<CR>u
-" copies filepath to clipboard by pressing yf
-":nnoremap <silent> yf :let @+=expand('%:p')<CR>
-" copies pwd to clipboard: command yd
-":nnoremap <silent> yd :let @+=expand('%:p:h')<CR>
 
 :se fdc=1
 
@@ -29,7 +31,7 @@ hi nscolor ctermfg=Black ctermbg=DarkGray
 hi nsmun ctermfg=Black ctermbg=White
 if exists("+showtabline")
      function MyTabLine()
-         let s = '%#iconcolor#≡VIM≡'
+         let s = '%#iconcolor# Vim '
          let t = tabpagenr()
          let i = 1
          while i <= tabpagenr('$')
@@ -37,18 +39,17 @@ if exists("+showtabline")
              let winnr = tabpagewinnr(i)
              let s .= '%' . i . 'T'
              let s .= (i == t ? '%1*' : '%2*')
-             let s .= (i == t ? '%#TabLineSel#' : '%#nsnum#')
-             let s .= '¦'
-             let s .= i . '¦'
+             let s .= (i == t ? ' %#TabLineSel#' : '%#nscolor#│')
+             let s .= i . ' '
              let s .= '%*'
              let s .= (i == t ? '%#TabLineSel#' : '%#nscolor#')
-             "let s .= (i == t ? '%#tabcolor#' : '%#TabLine#')
              let file = bufname(buflist[winnr - 1])
              let file = fnamemodify(file, ':p:t')
              if file == ''
-                 let file = '[netrw]'
+                 let file = '[???]'
              endif
              let s .= file
+             let s .= ' '
              let i = i + 1
          endwhile
          let s .= '%T%#TabLineFill#%='
@@ -64,11 +65,6 @@ endif
 set laststatus=2
 
 " now set it up to change the status line based on mode
-"if version >= 700
-"  au InsertEnter * hi StatusLine ctermfg=DarkBlue ctermbg=LightBlue
-"  au InsertLeave * hi StatusLine ctermfg=DarkRed ctermbg=LightRed
-"endif
-
 hi StatColor ctermfg=DarkBlue ctermbg=LightBlue
 hi Modified guibg=orange guifg=black ctermbg=lightred ctermfg=black
 
@@ -111,7 +107,6 @@ endfunction
 " try with ModeChanged
 au CursorMoved * call InsertStatuslineColor(mode())
 au InsertEnter * call InsertStatuslineColor(v:insertmode)
-"au InsertLeave * hi StatColor guibg=#95e454 guifg=black ctermbg=lightgreen ctermfg=black
 
 """"""""""""Specific File settings"""""""""""""""""""""""""""""""
 augroup remember_folds
@@ -141,7 +136,7 @@ if has("autocmd")
   au BufReadPost * if line("'\"") > 0 && line("'\"") <= line("$")
     \| exe "normal! g'\"" | endif
 endif
-
+"""""""""""""""""""NETRW Settings"""""""""""""""""""""""""""""""""""""
 function! Create()
   let l:filename = input("please enter filename: ")
   execute 'silent !touch ' . b:netrw_curdir.'/'.l:filename 
@@ -160,12 +155,17 @@ function! Netrw_mappings()
   noremap <buffer><space> :call Open()<cr>
 endfunction
 
+map <leader>nt :Ntree<cr>
+""""""""""""""Split Window settings""""""""""""""""""""""""""""""""""
+hi VertSplit	guifg=white gui=none ctermfg=white term=none cterm=none
+hi FoldColumn	guifg=white guibg=NONE ctermbg=NONE ctermfg=white cterm=bold term=bold
+hi Folded	guifg=white guibg=NONE ctermbg=NONE ctermfg=white cterm=none term=none
+
 let g:netrw_winsize = 85
 autocmd! BufEnter * if &ft ==# 'help' | wincmd L | endif
 
 augroup DimInactiveWindows
   au!
-  "au WinEnter * call s:DimInactiveWindows()   "Irrelevant now but a reminder for something you can do
   au WinEnter * set cursorline
   au WinLeave * set nocursorline
 augroup END

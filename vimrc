@@ -4,7 +4,10 @@
 " zf#j - creates a fold from the cursor down # lines    za - to toggle the fold
 " #gt - to jump to the #th tab
 " Ctrl-x - to close terminal 
-"
+" >#[down/up] - add indent to # number of lines down/up (< to remove indent)
+" * - search down word under cursor                     # - search up word under cursor
+" ~ - switch letter case
+" Ctrl-z, bg and fg are for suspending applications the terminal
 
 :set autoread
 :set number relativenumber
@@ -15,12 +18,24 @@
 :set splitright
 :set splitbelow
 :let g:netrw_liststyle = 3
-:let g:netrw_keepdir=0
+":let g:netrw_keepdir=-8
 :set cursorline
 :set foldenable
 :set mouse=a
-:tnoremap <C-x> <C-\><C-n>:q!<CR>
-vmap <C-c> :<Esc>`>a<CR><Esc>mx`<i<CR><Esc>my'xk$v'y!xclip -selection c<CR>u
+"Terminal commands
+:let g:terms = 0
+:tnoremap <C-x> <C-\><C-n>:q!<CR>:let g:terms = g:terms - 1<CR>
+"function TR()
+"  :let $VIM_DIR=expand('%:p:h')
+"  :botright terminal
+"  :normal \<C-w>10_<CR>cd $VIM_DIR<CR>clear<CR>
+"  :let b:my_term = 1
+"endf
+":map <C-s> :call TR()<cr>
+
+:map <C-s> :let $VIM_DIR=expand('%:p:h')<CR>:let g:terms = g:terms + 1<CR>:botright terminal<CR><C-w>10_<CR>cd $VIM_DIR<CR>clear<CR>
+"Copy to system clipboard
+:vmap <C-c> :<Esc>`>a<CR><Esc>mx`<i<CR><Esc>my'xk$v'y!xclip -selection c<CR>u
 
 :se fdc=1
 
@@ -144,18 +159,32 @@ function! Create()
   redraw!
 endf
 
+command! -nargs=? MyTerm execute 'term <args>' | let b:my_term = 1
+
 function! Open()
-  on
+  "normal :silent on 
+  ":execute "normal! \<C-w><l>"
+  "let terms = filter(range(1, bufnr('$')),
+  "    \ 'bufexists(v:val) && getbufvar(v:val, "my_term", 0)')
+  echo g:terms
+  "echo tabpagewinnr(tabpagenr(), '$')
+  if tabpagewinnr(tabpagenr(), '$') - g:terms >= 2
+    :silent 2q
+  endif
   normal v
+  "echo len(terms)
+  "echo tabpagewinnr(tabpagenr(), '$') 
 endf
 
 autocmd filetype netrw call Netrw_mappings()
 function! Netrw_mappings()
   noremap <buffer>% :call Create()<cr>
   noremap <buffer><space> :call Open()<cr>
+  "noremap <buffer><space> <C-w><l> 
 endfunction
 
-map <leader>nt :Ntree<cr>
+"map <F6> :let $VIM_DIR=expand('%:p:h')<CR>:botright terminal<CR><C-w>10_<CR>cd $VIM_DIR<CR>clear<CR>
+
 """"""""""""""Split Window settings""""""""""""""""""""""""""""""""""
 hi VertSplit	guifg=white gui=none ctermfg=white term=none cterm=none
 hi FoldColumn	guifg=white guibg=NONE ctermbg=NONE ctermfg=white cterm=bold term=bold

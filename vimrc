@@ -1,40 +1,59 @@
 " Commands:
-" gn - use this directoy as main directory              - - to go up one directory
-" d - make a directory                                  D/r_click - delete with confirmation 
-" zf#j - creates a fold from the cursor down # lines    za - to toggle the fold
+
+" <F1> to open help in NETRW
+" gn - use this directoy as main directory                - - to go up one directory
+" d - make a directory                                    D/r_click - delete with confirmation 
+" % - make a new file                                     R - to rename a file
+
+" zf#j - creates a fold from the cursor down # lines      za - to toggle the fold
 " #gt - to jump to the #th tab
-" Ctrl-x - to close terminal 
 " >#[down/up] - add indent to # number of lines down/up (< to remove indent)
-" * - search down word under cursor                     # - search up word under cursor
+" * - search down word under cursor                       # - search up word under cursor
 " ~ - switch letter case
+" A - insert at end of line
+
+" u - to undo change                                      Ctrl-r - to redo change
+
+" Ctrl-s - to open the terminal                           Ctrl-x - to close the terminal
 " Ctrl-z, bg and fg are for suspending applications the terminal
 
+" :mks - to make a session (add ! to ovwrwrite last one)  vim -S sessionfile - to open the saved session
+" :e - to reload a file buffer if edited outside of vim   :Lexplore - to do the same in NETRW  (! to force them of course)
+" :bufdo e - to reload all buffers (not really recomended though)
+
+function! SourceIfExists()
+  if argc() == 0 && filereadable('./Session.vim')
+    exe 'source ./Session.vim'
+  endif
+endfunction
+
+autocmd! CursorMoved,CursorMovedI,WinEnter,WinLeave,BufLeave,VimLeavePre,TabLeave * set bl
+
+autocmd! VimEnter * call SourceIfExists()
+:set sessionoptions+=buffers
 :set autoread
 :set number relativenumber
 :set smartindent
 :set incsearch
+:set tabstop=4
 :set hlsearch
 :set scrolloff=5
 :set splitright
 :set splitbelow
 :let g:netrw_liststyle = 3
-":let g:netrw_keepdir=-8
+:let g:netrw_banner = 0
 :set cursorline
 :set foldenable
 :set mouse=a
+:set noequalalways
 "Terminal commands
 :let g:terms = 0
-:tnoremap <C-x> <C-\><C-n>:q!<CR>:let g:terms = g:terms - 1<CR>
-"function TR()
-"  :let $VIM_DIR=expand('%:p:h')
-"  :botright terminal
-"  :normal \<C-w>10_<CR>cd $VIM_DIR<CR>clear<CR>
-"  :let b:my_term = 1
-"endf
-":map <C-s> :call TR()<cr>
 
+:map <C-k> 1gt :e.<CR>:set bl<CR>:mks!<CR>
+:tnoremap <C-x> <C-\><C-n>:q!<CR>:let g:terms = g:terms - 1<CR>
 :map <C-s> :let $VIM_DIR=expand('%:p:h')<CR>:let g:terms = g:terms + 1<CR>:botright terminal<CR><C-w>10_<CR>cd $VIM_DIR<CR>clear<CR>
 "Copy to system clipboard
+" Linux
 :vmap <C-c> :<Esc>`>a<CR><Esc>mx`<i<CR><Esc>my'xk$v'y!xclip -selection c<CR>u
 
 :se fdc=1
@@ -119,9 +138,11 @@ function! InsertStatuslineColor(mode)
   endif
 endfunction 
 
-" try with ModeChanged
-au CursorMoved * call InsertStatuslineColor(mode())
-au InsertEnter * call InsertStatuslineColor(v:insertmode)
+" with ModeChanged
+au ModeChanged * call InsertStatuslineColor(mode())
+" keep in case ModeChanged doesn't work fro some reason (vim version I think)
+"au CursorMoved * call InsertStatuslineColor(mode())
+"au InsertEnter * call InsertStatuslineColor(v:insertmode)
 
 """"""""""""Specific File settings"""""""""""""""""""""""""""""""
 augroup remember_folds
@@ -151,6 +172,9 @@ if has("autocmd")
   au BufReadPost * if line("'\"") > 0 && line("'\"") <= line("$")
     \| exe "normal! g'\"" | endif
 endif
+
+""""""""""""""""""""""Saving session"""""""""""""""""""""""""""""""""
+
 """""""""""""""""""NETRW Settings"""""""""""""""""""""""""""""""""""""
 function! Create()
   let l:filename = input("please enter filename: ")
@@ -161,36 +185,30 @@ endf
 
 command! -nargs=? MyTerm execute 'term <args>' | let b:my_term = 1
 
-function! Open()
-  "normal :silent on 
-  ":execute "normal! \<C-w><l>"
-  "let terms = filter(range(1, bufnr('$')),
-  "    \ 'bufexists(v:val) && getbufvar(v:val, "my_term", 0)')
-  echo g:terms
-  "echo tabpagewinnr(tabpagenr(), '$')
-  if tabpagewinnr(tabpagenr(), '$') - g:terms >= 2
-    :silent 2q
-  endif
-  normal v
-  "echo len(terms)
-  "echo tabpagewinnr(tabpagenr(), '$') 
-endf
+"function! Open()
+"    if tabpagewinnr(tabpagenr(), '$') - g:terms >= 2
+"        if g:terms == 0
+"            :silent on
+"        else
+"            :silent 2q
+"        endif
+"  endif
+"  normal v
+"endf
 
 autocmd filetype netrw call Netrw_mappings()
 function! Netrw_mappings()
   noremap <buffer>% :call Create()<cr>
-  noremap <buffer><space> :call Open()<cr>
+  "noremap <buffer><space> :call Open()<cr>
   "noremap <buffer><space> <C-w><l> 
 endfunction
-
-"map <F6> :let $VIM_DIR=expand('%:p:h')<CR>:botright terminal<CR><C-w>10_<CR>cd $VIM_DIR<CR>clear<CR>
 
 """"""""""""""Split Window settings""""""""""""""""""""""""""""""""""
 hi VertSplit	guifg=white gui=none ctermfg=white term=none cterm=none
 hi FoldColumn	guifg=white guibg=NONE ctermbg=NONE ctermfg=white cterm=bold term=bold
 hi Folded	guifg=white guibg=NONE ctermbg=NONE ctermfg=white cterm=none term=none
 
-let g:netrw_winsize = 85
+"let g:netrw_winsize = 85
 autocmd! BufEnter * if &ft ==# 'help' | wincmd L | endif
 
 augroup DimInactiveWindows

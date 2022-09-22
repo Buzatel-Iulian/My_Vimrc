@@ -27,8 +27,6 @@ function! SourceIfExists()
   endif
 endfunction
 
-autocmd! CursorMoved,CursorMovedI,WinEnter,WinLeave,BufLeave,VimLeavePre,TabLeave * set bl
-
 autocmd! VimEnter * call SourceIfExists()
 :set sessionoptions+=buffers
 :set autoread
@@ -48,8 +46,16 @@ autocmd! VimEnter * call SourceIfExists()
 :set noequalalways
 "Terminal commands
 :let g:terms = 0
-
-:map <C-k> 1gt :e.<CR>:set bl<CR>:mks!<CR>
+function SaveSession()
+    norm 1gt
+    "echo &filetype
+    if &filetype == 'netrw'
+        :e .
+	:set bl
+    endif
+    :mks!
+endfunction
+:map <C-k> :call SaveSession()<CR>
 :tnoremap <C-x> <C-\><C-n>:q!<CR>:let g:terms = g:terms - 1<CR>
 :map <C-s> :let $VIM_DIR=expand('%:p:h')<CR>:let g:terms = g:terms + 1<CR>:botright terminal<CR><C-w>10_<CR>cd $VIM_DIR<CR>clear<CR>
 "Copy to system clipboard
@@ -185,22 +191,9 @@ endf
 
 command! -nargs=? MyTerm execute 'term <args>' | let b:my_term = 1
 
-"function! Open()
-"    if tabpagewinnr(tabpagenr(), '$') - g:terms >= 2
-"        if g:terms == 0
-"            :silent on
-"        else
-"            :silent 2q
-"        endif
-"  endif
-"  normal v
-"endf
-
 autocmd filetype netrw call Netrw_mappings()
 function! Netrw_mappings()
   noremap <buffer>% :call Create()<cr>
-  "noremap <buffer><space> :call Open()<cr>
-  "noremap <buffer><space> <C-w><l> 
 endfunction
 
 """"""""""""""Split Window settings""""""""""""""""""""""""""""""""""

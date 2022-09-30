@@ -38,14 +38,13 @@ autocmd! VimEnter * call SourceIfExists()
 :set scrolloff=5
 :set splitright
 :set splitbelow
-:let g:netrw_liststyle = 3
+:let g:netrw_liststyle = 4
 :let g:netrw_banner = 0
 :set cursorline
 :set foldenable
 :set mouse=a
 :set noequalalways
 "Terminal commands
-:let g:terms = 0
 function SaveSession()
     norm 1gt
     "echo &filetype
@@ -55,9 +54,14 @@ function SaveSession()
     endif
     :mks!
 endfunction
+"To open markdown link in another tab
+:nnoremap gf <C-w>gf
+"Save current session
 :map <C-k> :call SaveSession()<CR>
-:tnoremap <C-x> <C-\><C-n>:q!<CR>:let g:terms = g:terms - 1<CR>
-:map <C-s> :let $VIM_DIR=expand('%:p:h')<CR>:let g:terms = g:terms + 1<CR>:botright terminal<CR><C-w>10_<CR>cd $VIM_DIR<CR>clear<CR>
+"Close the terminal
+:tnoremap <C-x> <C-\><C-n>:q!<CR>
+"Open a terminal
+:map <C-s> :let $VIM_DIR=expand('%:p:h')<CR>:botright terminal<CR><C-w>10_<CR>cd $VIM_DIR<CR>clear<CR>
 "Copy to system clipboard
 " Linux
 :vmap <C-c> :<Esc>`>a<CR><Esc>mx`<i<CR><Esc>my'xk$v'y!xclip -selection c<CR>u
@@ -183,9 +187,9 @@ endif
 
 """""""""""""""""""NETRW Settings"""""""""""""""""""""""""""""""""""""
 function! Create()
-  let l:filename = input("please enter filename: ")
-  execute 'silent !touch ' . b:netrw_curdir.'/'.l:filename 
-  Explore
+  :norm %
+  :w
+  Rex
   redraw!
 endf
 
@@ -193,7 +197,7 @@ command! -nargs=? MyTerm execute 'term <args>' | let b:my_term = 1
 
 autocmd filetype netrw call Netrw_mappings()
 function! Netrw_mappings()
-  noremap <buffer>% :call Create()<cr>
+  noremap <buffer>_ :call Create()<cr>
 endfunction
 
 """"""""""""""Split Window settings""""""""""""""""""""""""""""""""""
@@ -201,7 +205,6 @@ hi VertSplit	guifg=white gui=none ctermfg=white term=none cterm=none
 hi FoldColumn	guifg=white guibg=NONE ctermbg=NONE ctermfg=white cterm=bold term=bold
 hi Folded	guifg=white guibg=NONE ctermbg=NONE ctermfg=white cterm=none term=none
 
-"let g:netrw_winsize = 85
 autocmd! BufEnter * if &ft ==# 'help' | wincmd L | endif
 
 augroup DimInactiveWindows

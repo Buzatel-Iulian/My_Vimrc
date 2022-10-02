@@ -1,5 +1,7 @@
 " Commands:
-
+"
+" :MyHelp - open .vimrc (in horizontal split)
+"
 " <F1> to open help in NETRW
 " gn - use this directoy as main directory                - - to go up one directory
 " d - make a directory                                    D/r_click - delete with confirmation 
@@ -7,6 +9,7 @@
 
 " zf#j - creates a fold from the cursor down # lines      za - to toggle the fold
 " #gt - to jump to the #th tab
+" gf - go to file path in another tab
 " >#[down/up] - add indent to # number of lines down/up (< to remove indent)
 " * - search down word under cursor                       # - search up word under cursor
 " ~ - switch letter case
@@ -20,6 +23,14 @@
 " :mks - to make a session (add ! to ovwrwrite last one)  vim -S sessionfile - to open the saved session
 " :e - to reload a file buffer if edited outside of vim   :Lexplore - to do the same in NETRW  (! to force them of course)
 " :bufdo e - to reload all buffers (not really recomended though)
+
+function! OpenMyHelp()
+  "On Linux
+  :tab sview ~/.vimrc
+  ":split ~/.vimrc
+endfunction
+
+:command MyHelp :call OpenMyHelp() 
 
 function! SourceIfExists()
   if argc() == 0 && filereadable('./Session.vim')

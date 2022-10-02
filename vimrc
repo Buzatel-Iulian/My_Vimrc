@@ -25,8 +25,11 @@
 " :bufdo e - to reload all buffers (not really recomended though)
 
 function! OpenMyHelp()
-  "On Linux
-  :tab sview ~/.vimrc
+  if has("win32")
+    :tab sview $HOME/vimfiles/vimrc
+  else
+    :tab sview ~/.vimrc
+  endif
   ":split ~/.vimrc
 endfunction
 
@@ -73,9 +76,13 @@ endfunction
 :tnoremap <C-x> <C-\><C-n>:q!<CR>
 "Open a terminal
 :map <C-s> :let $VIM_DIR=expand('%:p:h')<CR>:botright terminal<CR><C-w>10_<CR>cd $VIM_DIR<CR>clear<CR>
+
 "Copy to system clipboard
-" Linux
-:vmap <C-c> :<Esc>`>a<CR><Esc>mx`<i<CR><Esc>my'xk$v'y!xclip -selection c<CR>u
+if has("win32")
+  :vmap <C-c> "+y
+else
+  :vmap <C-c> :<Esc>`>a<CR><Esc>mx`<i<CR><Esc>my'xk$v'y!xclip -selection c<CR>u
+endif
 
 :se fdc=1
 

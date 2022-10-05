@@ -101,7 +101,7 @@ if exists("+showtabline")
              let winnr = tabpagewinnr(i)
              let s .= '%' . i . 'T'
              let s .= (i == t ? '%1*' : '%2*')
-             let s .= (i == t ? ' %#TabLineSel#' : '%#nscolor#│')
+             let s .= (i == t ? ' %#TabLineSel#' : '%#nscolor# ')
              let s .= i . ' '
              let s .= '%*'
              let s .= (i == t ? '%#TabLineSel#' : '%#nscolor#')
@@ -111,10 +111,11 @@ if exists("+showtabline")
                  let file = '[???]'
              endif
              let s .= file
-             let s .= ' '
+             let s .= (i == t || i+1 == t ? ' ' : ' │')
              let i = i + 1
          endwhile
-         let s .= '%T%#TabLineFill#%='
+	 let s .= '%T%#nscolor#%='
+         "let s .= '%T%#TabLineFill#%='
          let s .= (tabpagenr('$') > 1 ? '%999XX' : 'X')
          return s
      endfunction

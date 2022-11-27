@@ -49,7 +49,7 @@ autocmd! VimEnter * call SourceIfExists()
 :set incsearch
 :set tabstop=4
 :set hlsearch
-:set scrolloff=5
+:set scrolloff=1
 :set splitright
 :set splitbelow
 :let g:netrw_liststyle = 4
@@ -58,6 +58,8 @@ autocmd! VimEnter * call SourceIfExists()
 :set foldenable
 :set mouse=a
 :set noequalalways
+:se fdc=1
+"To open markdown link in another tab
 "Terminal commands
 function SaveSession()
     norm 1gt
@@ -68,7 +70,6 @@ function SaveSession()
     endif
     :mks!
 endfunction
-"To open markdown link in another tab
 :nnoremap gf <C-w>gf
 "Save current session
 :map <C-k> :call SaveSession()<CR>
@@ -83,8 +84,24 @@ if has("win32")
 else
   :vmap <C-c> :<Esc>`>a<CR><Esc>mx`<i<CR><Esc>my'xk$v'y!xclip -selection c<CR>u
 endif
+"Move Selection Left/Right
+:vmap <C-left> xhPgvhoho
+:vmap <C-Right> xpgvlolo
+"Move Line Up/Down
+vnoremap <C-Up>   :m '<-2<CR>gv=gv
+vnoremap <C-Down> :m '>+1<CR>gv=gv
+"Paste below current line
+map <C-p> :pu<CR>
 
-:se fdc=1
+xnoremap * :<C-u>call <SID>VSetSearch()<CR>/<C-R>=@/<CR><CR>
+xnoremap # :<C-u>call <SID>VSetSearch()<CR>?<C-R>=@/<CR><CR>
+
+function! s:VSetSearch()
+    let temp = @s
+    norm! gv"sy
+    let @/ = '\V' . substitute(escape(@s, '/\'), '\n', '\\n','g')
+    let @s = temp
+endfunction
 
 """"""""""""""Tab Bar""""""""""""""""""""""""""""""""""""""""""
 hi iconcolor ctermfg=Black ctermbg=LightGreen 

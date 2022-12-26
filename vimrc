@@ -93,20 +93,31 @@ vnoremap <C-Down> :m '>+1<CR>gv=gv
 "Paste below current line
 map <C-p> :pu<CR>
 
-xnoremap * :<C-u>call <SID>VSetSearch()<CR>/<C-R>=@/<CR><CR>
-xnoremap # :<C-u>call <SID>VSetSearch()<CR>?<C-R>=@/<CR><CR>
+:let g:srch_string = 'nothing'
+:let g:srch_file = '**'
 
-function! s:VSetSearch()
-    let temp = @s
-    norm! gv"sy
-    let @/ = '\V' . substitute(escape(@s, '/\'), '\n', '\\n','g')
-    let @s = temp
+map & :call VSSearch()<CR>
+"map & :vimgrep<SPACE>
+"xnoremap # :<C-u>call <SID>VSetSearch()<CR>?<C-R>=@/<CR><CR>
+
+function! VSSearch()
+    let temp = input('vimgrep_s:')
+    if temp == ''
+        :execute 'vimgrep /'.g:srch_string.'/gj '.g:srch_file | copen
+        ":execute 'vimgrep /'.expand('<cword>').'/gj '.expand('%') | copen
+	":vimgrep $srch_string $srch_file
+    else
+        :execute 'vimgrep /'.temp.'/gj '.g:srch_file | copen
+        ":vimgrep $temp $srch_file
+        :let g:srch_string = $temp
+    endif
+    ":copen
 endfunction
 
 """"""""""""""Tab Bar""""""""""""""""""""""""""""""""""""""""""
 hi iconcolor ctermfg=Black ctermbg=LightGreen 
 hi tabcolor ctermfg=DarkBlue ctermbg=LightGreen
-hi nscolor ctermfg=Black ctermbg=DarkGray 
+hi nscolor ctermfg=Black ctermbg=White 
 hi nsmun ctermfg=Black ctermbg=White
 if exists("+showtabline")
      function MyTabLine()

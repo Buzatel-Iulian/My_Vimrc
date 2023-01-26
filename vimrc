@@ -27,6 +27,8 @@
 function! OpenMyHelp()
   if has("win32")
     :tab sview $HOME/vimfiles/vimrc
+  elseif has("win32unix")
+    :tab sview $HOME/.vim/vimrc
   else
     :tab sview ~/.vimrc
   endif
@@ -79,7 +81,7 @@ endfunction
 :map <C-s> :let $VIM_DIR=expand('%:p:h')<CR>:botright terminal<CR><C-w>10_<CR>cd $VIM_DIR<CR>clear<CR>
 
 "Copy to system clipboard
-if has("win32")
+if has("win32") || has("win32unix")
   :vmap <C-c> "+y
 else
   :vmap <C-c> :<Esc>`>a<CR><Esc>mx`<i<CR><Esc>my'xk$v'y!xclip -selection c<CR>u

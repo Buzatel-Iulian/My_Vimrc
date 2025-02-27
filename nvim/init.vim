@@ -252,7 +252,9 @@ if has("win32") || has("win32unix")
 	endfunction
 elseif has("macunix")
 	function! PathReveal()
-		:echo "to test on mac"
+		:let $VIM_DIR= expand('%:p:h')
+		":echo $VIM_DIR
+		:silent :exe ":! open " . fnameescape($VIM_DIR)
 	endfunction
 else
 	function! PathReveal()
@@ -278,6 +280,27 @@ if has("win32") || has("win32unix")
 else
 	:map <C-e> :let $VIM_DIR=expand('%:p:h')<CR>:sp<CR>:terminal<CR>i<CR>cd $VIM_DIR<CR>clear<CR>
 endif
+
+
+let g:tmp = $MYVIMRC."temp"
+:command Select :call SelectFile()
+function! SelectFile()
+  tabnew
+  execute 'terminal fzf >'.g:tmp
+  "let g:fname = readfile(tmp)[0]  " < move this in the autocmd & use same terminal config + others on the fzf one 
+  "silent execute 'terminal rm '.tmp
+  "execute 'vsplit '.fname
+  autocmd TermClose * ++once call OpenFile()
+
+endfunction
+
+function! OpenFile()
+	execute 'e '.readfile(g:tmp)[0]
+	let aux = split(readfile(g:tmp)[0], "[.]")
+	execute 'set filetype='.get(aux, len(aux)-1, 'txt')
+endfunction
+
+
 "Copy to system clipboard
 :vmap <C-c> "+y
 "Move Selection Left/Right

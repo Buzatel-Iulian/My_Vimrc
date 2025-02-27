@@ -82,6 +82,7 @@
 " 
 " Ctrl-y is free from what it seems
 " Ctrl-f is free now too
+" Ctrl-n too
 
 ""#2"""""""""""""""""" Base Settings """""""""""""""
 :set sessionoptions+=buffers
@@ -287,6 +288,7 @@ let g:tmp = $MYVIMRC."temp"
 function! SelectFile()
   tabnew
   execute 'terminal fzf >'.g:tmp
+  exe 'norm i'
   "let g:fname = readfile(tmp)[0]  " < move this in the autocmd & use same terminal config + others on the fzf one 
   "silent execute 'terminal rm '.tmp
   "execute 'vsplit '.fname
@@ -381,6 +383,8 @@ augroup CursorLineOnlyInActiveWindow
 augroup END
 hi iconcolor ctermfg=Black ctermbg=LightBlue 
 hi nscolor ctermfg=Black ctermbg=White 
+" check https://www.gilesorr.com/blog/vim-tips-30.1-numbered-tabs.html
+" for modified tab highlighting
 if exists("+showtabline")
      function MyTabLine()
          let s = '%#iconcolor# nVim '

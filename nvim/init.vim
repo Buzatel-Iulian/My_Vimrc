@@ -69,6 +69,7 @@
 " :bufdo e - to reload all buffers (not really recomended though)
 " 
 " Ctrl-v & Ctrl-q - Open Visual Block
+" Ctrl-n - Switch leftside NETRW ON/OFF
 " 
 " q[letter] - to start recording macro                            q - to stop recording macro
 " @[letter] - to run recorded macro
@@ -82,7 +83,6 @@
 " 
 " Ctrl-y is free from what it seems
 " Ctrl-f is free now too
-" Ctrl-n too
 
 ""#2"""""""""""""""""" Base Settings """""""""""""""
 :set sessionoptions+=buffers
@@ -203,6 +203,9 @@ function! ToggleDiff ()
     endif
 endfunction
 
+:map <C-n> :exe 'Lex '.expand('%:p:h')<CR>:vertical resize 30<CR>
+:map <C-o> :only<CR>
+
 " Replace selection (with confirmation)
 map <C-i> :%s/<C-R>=@/<CR>/<C-R>=@/<CR>_/gc
 " Select in normal mode (try to use expand("<cword>"))
@@ -271,6 +274,7 @@ endif
 :command Reveal :call PathReveal()
 "Close the terminal
 :tnoremap <C-x> <C-\><C-n>:q!<CR>
+:nnoremap <C-x> :q<CR>
 "Exit terminal insert mode
 :tnoremap <Esc> <C-\><C-n>
 "Open a terminal
@@ -318,19 +322,19 @@ map J 10j
 map K 10k
 
 "Paste below current line 
-map <C-p> :call PutText()<CR> 
-function! PutText()
-	:set formatoptions-=c formatoptions-=r formatoptions-=o
-	:exe ":norm o" . substitute(escape(@", '/\'), '\n\s\+', '\n','g')
-	:set formatoptions+=c formatoptions+=r formatoptions+=o
-endfunction
+""""""""map <C-p> :call PutText()<CR> 
+""""""""function! PutText()
+""""""""	:set formatoptions-=c formatoptions-=r formatoptions-=o
+""""""""	:exe ":norm o" . substitute(escape(@", '/\'), '\n\s\+', '\n','g')
+""""""""	:set formatoptions+=c formatoptions+=r formatoptions+=o
+""""""""endfunction
 
-map <C-o> :call PutClipText()<CR>
-function! PutClipText()
-	:set formatoptions-=c formatoptions-=r formatoptions-=o
-	:exe ":norm o" . substitute(escape(@*, '/\'), '\n\s\+', '\n','g')
-	:set formatoptions+=c formatoptions+=r formatoptions+=o
-endfunction
+""""""""map <C-o> :call PutClipText()<CR>
+""""""""function! PutClipText()
+""""""""	:set formatoptions-=c formatoptions-=r formatoptions-=o
+""""""""	:exe ":norm o" . substitute(escape(@*, '/\'), '\n\s\+', '\n','g')
+""""""""	:set formatoptions+=c formatoptions+=r formatoptions+=o
+""""""""endfunction
 inoremap <CR> <CR>x<BS>
 nnoremap o ox<BS>
 nnoremap O Ox<BS>

@@ -85,6 +85,8 @@
 " Ctrl-f is free now too
 
 ""#2"""""""""""""""""" Base Settings """""""""""""""
+
+let g:tmp = $MYVIMRC."temp"
 :set sessionoptions+=buffers
 :set autoread
 :set number "relativenumber
@@ -206,6 +208,23 @@ endfunction
 :map <C-n> :exe 'Lex '.expand('%:p:h')<CR>:vertical resize 30<CR>
 :map <C-o> :only<CR>
 
+command Test :call GetFileDiff()
+function GetFileDiff()
+	" BETTER, gives line where modification starts and how many lines the
+	" modification has. 0 after line number means there are erased lines,
+	" blank after line number means one line changed, and number is number
+	" of changed lines
+	" git diff --unified=0 [FILE_PATH] | grep -Po '^\+\+\+ ./\K.*|^@@ -[0-9]+(,[0-9]+)? \+\K[0-9]+(,[0-9]+)?(?= @@)'
+	"
+	":call feedkeys(":terminal\<CR>i\<CR>git diff\<CR>echo \"hello\"")
+	":call feedkeys(":terminal\<CR>i\<CR>git diff ".fnameescape(expand("%:p"))." | gawk 'match($0,\"^@@ -([0-9]+),([0-9]+) [+]([0-9]+),([0-9]+) @@\",a){ left=a[1]; ll=length(a[2]); right=a[3]; rl=length(a[4]) } /^(---|\+\+\+|[^-+ ])/{ print;next } { line=substr($0,2) } /^[-]/{ printf \"-%\"ll\"s %\"rl\"s:%s\\n\",left++,\"\"     ,line;next } /^[+]/{ printf \"+%\"ll\"s %\"rl\"s:%s\\n\",\"\"    ,right++,line;next } { printf \" %\"ll\"s %\"rl\"s:%s\\n\",left++,right++,line }' > $MYVIMRC\"temp\"\<CR>")
+	:call feedkeys(":terminal\<CR>i\<CR>git diff | gawk 'match($0,\"^@@ -([0-9]+),([0-9]+) [+]([0-9]+),([0-9]+) @@\",a){ left=a[1]; ll=length(a[2]); right=a[3]; rl=length(a[4]) } /^(---|\+\+\+|[^-+ ])/{ print;next } { line=substr($0,2) } /^[-]/{ printf \"-%\"ll\"s %\"rl\"s:%s\\n\",left++,\"\"     ,line;next } /^[+]/{ printf \"+%\"ll\"s %\"rl\"s:%s\\n\",\"\"    ,right++,line;next } { printf \" %\"ll\"s %\"rl\"s:%s\\n\",left++,right++,line }' > $MYVIMRC\"temp\"\<CR>")
+	":execute 'terminal git diff | gawk ''match($0,"^@@ -([0-9]+),([0-9]+) [+]([0-9]+),([0-9]+) @@",a){ left=a[1]; ll=length(a[2]); right=a[3]; rl=length(a[4]) } /^(---|\+\+\+|[^-+ ])/{ print;next } { line=substr($0,2) } /^[-]/{ printf "-%"ll"s %"rl"s:%s\n",left++,""     ,line;next } /^[+]/{ printf "+%"ll"s %"rl"s:%s\n",""    ,right++,line;next } { printf " %"ll"s %"rl"s:%s\n",left++,right++,line }'' > '.g:tmp
+endfunction
+"map <C-f> :terminal<CR>i<CR>git diff | gawk 'match($0,"^@@ -([0-9]+),([0-9]+) [+]([0-9]+),([0-9]+) @@",a){ left=a[1]; ll=length(a[2]); right=a[3]; rl=length(a[4]) } /^(---|\+\+\+|[^-+ ])/{ print;next } { line=substr($0,2) } /^[-]/{ printf "-%"ll"s %"rl"s:%s\n",left++,""     ,line;next } /^[+]/{ printf "+%"ll"s %"rl"s:%s\n",""    ,right++,line;next } { printf " %"ll"s %"rl"s:%s\n",left++,right++,line }' > $MYVIMRC"temp"<CR>
+":call feedkeys("\<C-o>")
+"map <C-f> :terminal<CR>i<CR>ls | cowsay<CR>
+
 " Replace selection (with confirmation)
 map <C-i> :%s/<C-R>=@/<CR>/<C-R>=@/<CR>_/gc
 " Select in normal mode (try to use expand("<cword>"))
@@ -287,7 +306,6 @@ else
 endif
 
 
-let g:tmp = $MYVIMRC."temp"
 :command Select :call SelectFile()
 function! SelectFile()
   tabnew

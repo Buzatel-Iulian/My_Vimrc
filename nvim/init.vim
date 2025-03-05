@@ -179,9 +179,54 @@ endfunction
 
 ""#4""""""""""""" Aditional / Modified functions """
 
+":MatchLinesFromFile {file}
+"           Read line numbers from {file} and highlight all those
+"           lines in the current window.
+":MatchLinesFromFile    Remove the highlighting of line numbers.
+"
+function! s:MatchLinesFromFile( filespec )
+    if exists('w:matchLinesId')
+        silent! call matchdelete(w:matchLinesId)
+        unlet w:matchLinesId
+    endif
+    if empty(a:filespec)
+        return
+    endif
+
+    try
+        let l:lnums =
+        \   filter(
+        \   map(
+        \       readfile(a:filespec),
+        \       'matchstr(v:val, "\\d\\+")'
+        \   ),
+        \   '! empty(v:val)'
+        \)
+
+        let l:pattern = join(
+        \   map(l:lnums, '"\\%" . v:val . "l"'),
+        \   '\|')
+
+        let w:matchLinesId = matchadd('MatchLines',  l:pattern)
+	:call feedkeys(':call matchadd(''LineHighlight'', '''.l:pattern.''')')
+    catch /^Vim\%((\a\+)\)\=:E/
+        " v:exception contains what is normally in v:errmsg, but with extra
+        " exception source info prepended, which we cut away.
+        let v:errmsg = substitute(v:exception, '^Vim\%((\a\+)\)\=:', '', '')
+        echohl ErrorMsg
+        echomsg v:errmsg
+        echohl None
+    endtry
+endfunction
+command! -bar -nargs=? -complete=file MatchLinesFromFile call <SID>MatchLinesFromFile(<q-args>)
+
+highlight def link MatchLines Search
+
 " To highlight text at specific positons:
 " :call matchadd('LineHighlight', '\%'.line('.').'l'.'\%[number]v')
 " https://neovim.io/doc/user/pattern.html
+" 
+" let naux = "2" + 2 " will equal 4 automatically
 
 " define line highlight color
 highlight LineHighlight ctermbg=darkgray guibg=darkgray
@@ -189,6 +234,7 @@ highlight LineHighlight ctermbg=darkgray guibg=darkgray
 nnoremap <silent> <Leader>l :call matchadd('LineHighlight', '\%'.line('.').'l')<CR>
 " clear all the highlighted lines
 nnoremap <silent> <Leader>c :call clearmatches()<CR>
+
 
 map <C-d> :call ToggleDiff()<CR>
 function! ToggleDiff ()
@@ -220,6 +266,11 @@ function GetFileDiff()
 	":call feedkeys(":terminal\<CR>i\<CR>git diff ".fnameescape(expand("%:p"))." | gawk 'match($0,\"^@@ -([0-9]+),([0-9]+) [+]([0-9]+),([0-9]+) @@\",a){ left=a[1]; ll=length(a[2]); right=a[3]; rl=length(a[4]) } /^(---|\+\+\+|[^-+ ])/{ print;next } { line=substr($0,2) } /^[-]/{ printf \"-%\"ll\"s %\"rl\"s:%s\\n\",left++,\"\"     ,line;next } /^[+]/{ printf \"+%\"ll\"s %\"rl\"s:%s\\n\",\"\"    ,right++,line;next } { printf \" %\"ll\"s %\"rl\"s:%s\\n\",left++,right++,line }' > $MYVIMRC\"temp\"\<CR>")
 	:call feedkeys(":terminal\<CR>i\<CR>git diff | gawk 'match($0,\"^@@ -([0-9]+),([0-9]+) [+]([0-9]+),([0-9]+) @@\",a){ left=a[1]; ll=length(a[2]); right=a[3]; rl=length(a[4]) } /^(---|\+\+\+|[^-+ ])/{ print;next } { line=substr($0,2) } /^[-]/{ printf \"-%\"ll\"s %\"rl\"s:%s\\n\",left++,\"\"     ,line;next } /^[+]/{ printf \"+%\"ll\"s %\"rl\"s:%s\\n\",\"\"    ,right++,line;next } { printf \" %\"ll\"s %\"rl\"s:%s\\n\",left++,right++,line }' > $MYVIMRC\"temp\"\<CR>")
 	":execute 'terminal git diff | gawk ''match($0,"^@@ -([0-9]+),([0-9]+) [+]([0-9]+),([0-9]+) @@",a){ left=a[1]; ll=length(a[2]); right=a[3]; rl=length(a[4]) } /^(---|\+\+\+|[^-+ ])/{ print;next } { line=substr($0,2) } /^[-]/{ printf "-%"ll"s %"rl"s:%s\n",left++,""     ,line;next } /^[+]/{ printf "+%"ll"s %"rl"s:%s\n",""    ,right++,line;next } { printf " %"ll"s %"rl"s:%s\n",left++,right++,line }'' > '.g:tmp
+	let i = 1
+	while i < len(readfile(g:tmp))
+		":call feedkeys(readfile(g:tmp)[i])
+		:let i = i+1
+	endwhile
 endfunction
 "map <C-f> :terminal<CR>i<CR>git diff | gawk 'match($0,"^@@ -([0-9]+),([0-9]+) [+]([0-9]+),([0-9]+) @@",a){ left=a[1]; ll=length(a[2]); right=a[3]; rl=length(a[4]) } /^(---|\+\+\+|[^-+ ])/{ print;next } { line=substr($0,2) } /^[-]/{ printf "-%"ll"s %"rl"s:%s\n",left++,""     ,line;next } /^[+]/{ printf "+%"ll"s %"rl"s:%s\n",""    ,right++,line;next } { printf " %"ll"s %"rl"s:%s\n",left++,right++,line }' > $MYVIMRC"temp"<CR>
 ":call feedkeys("\<C-o>")
